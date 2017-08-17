@@ -123,5 +123,5 @@ Modbus.prototype.WriteWQ = function (mapItem, value, devId) {
 
 
 module.exports = Modbus;
-module.exports.ModbusBase = require('./ModbusBase')
+module.exports.ModbusBase = require('./ModbusBase');
 
