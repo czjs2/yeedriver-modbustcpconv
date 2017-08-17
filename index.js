@@ -5,7 +5,7 @@
 const WorkerBase = require('yeedriver-base/WorkerBase');
 const ModbusRTU = require("qz-modbus-serial");
 const util = require('util');
-const PDUtils = require('yeedriver-base/PDUtils');
+
 const _ = require('lodash')
 const vm = require('vm')
 const MAX_WRITE_CNT = 50;
@@ -15,8 +15,25 @@ function Modbus(maxSegLength, minGapLength) {
 }
 util.inherits(Modbus, WorkerBase);
 
+/**
+ *
+ * @param options
+ * options.protocol 通信协议，TCP modbusTCP RTU modbusRTU ASCII modbusASCII，默认是modbusRTU
+ * options.devName  如果有，是通过串口连接的，这是串口号，程序注意要有权限操作此串口
+ *  当devName存在时：
+ *     options.serialOption表示串口配置
+ *        .baudrate  波特率  默认9600
+ *        .parity    校验位，默认无校验
+ *        .stopbit   停止位，默认为1
+ *
+ *  当devName不存在时
+ *      options.ip   ip
+ *      options.port  端口
+ *      网络断开或是错误时，系统会自动尝试重连恢复
+ */
+
 Modbus.prototype.initDriver = function (options) {
-    this.options = options || this.options;
+    this.options = options || this.options || {};
 
     this.maxSegLength = options.maxSegLength;
     this.minGapLength = options.minGapLength;
@@ -24,22 +41,30 @@ Modbus.prototype.initDriver = function (options) {
 
     if (!this.inited) {
         this.inited = true;
-        //启动ModbusRTU
         this.mbClient = new ModbusRTU();
-        let Connector;
-        if (options && options.devName) {
-            Connector = {
-                func: this.mbClient.connectRTU,
-                param1: options.devName,
-                param2:{baudrate:options.baudrate||9600,parity:options.parity,stopb}
-            }
-        } else {
-            Connector = {
-                func: this.mbClient.connectComOverTCP,
-                param1:  options.ip + ":" + options.port
-            }
+        let Connector = {};
+        if(this.options.protocol === 'RTU' || !this.options.protocol ){
+            //启动ModbusRTU
+            Connector.func= this.mbClient.connectRTU;
+        }else if(this.options.prtotocol === 'TCP'){
+            Connector.func= this.mbClient.connectTCP;
+        }else if(this.options.protocol === 'ASCII'){
+            Connector.func= this.mbClient.connectAsciiSerial;
         }
-        Connector.func(Connector.param1, Connector.param1, function (error) {
+
+
+        if (options && options.devName) {
+            Connector.param1 =options.devName;
+            Connector.param2={baudrate:options.baudrate||9600,parity:options.parity,stopbit:options.stopbit}
+        } else {
+            if(!this.options || this.options.protocol === 'RTU'){
+                Connector.param1 = options.ip + ":" + options.port
+            }else  if( this.options.protocol === 'TCP'){
+                Connector.param1 = options.ip;
+            }
+
+        }
+        Connector.func(Connector.param1, Connector.param2, function (error) {
             if (!error) {
                 this.mbClient.setTimeout(this.options.timeout || 500);
                 this.connected = true;
@@ -47,33 +72,13 @@ Modbus.prototype.initDriver = function (options) {
             } else {
                 console.error('error in open modbus port:', error);
             }
-        }.bind(this)
-    )
-        ;
-
+        }.bind(this));
 
         this.setupAutoPoll();
 
     }
 
-    _.each(options.sids, function (type, devId) {
-        let classType = require("./mb_devices/" + type);
-        if (this.devices[devId] && _.isFunction(this.devices[devId].release)) {
-            this.devices[devId].release();
-        }
-        this.devices[devId] = new classType(devId, this.mbClient);
-    }.bind(this));
-    if (options.readConfig) {
-        try {
-            let script = new vm.Script(" definition = " + options.readConfig);
-            let newObj = {};
-            script.runInNewContext(newObj);
-            this.SetAutoReadConfig(newObj.definition);
-        } catch (e) {
-            console.error('error in read config:', e.message || e);
-        }
-        ;
-    }
+
 
 
 };
@@ -116,5 +121,7 @@ Modbus.prototype.WriteWQ = function (mapItem, value, devId) {
 };
 
 
-var _mbInst = new Modbus();
+
+module.exports = Modbus;
+module.exports.ModbusBase = require('./ModbusBase')
 
