@@ -9,7 +9,7 @@ function ModbusBase(devId,mb_client){
 }
 ModbusBase.prototype.initDeviceId = function(devId){
     this.mbClient.setID(parseInt(devId.replace(/id/i,'')));
-}
+};
 
 ModbusBase.prototype.ReadBI = function(bi_mapItem){
     this.mbClient.setID(this.devId);
@@ -43,7 +43,8 @@ ModbusBase.prototype.CreateWQReader = function(mapItem,convert){
     }.bind(this)).then(function(){
         return results;
     })
-}
+};
+
 ModbusBase.prototype.ReadWQ = function(mapItem){
     this.mbClient.setID(this.devId);
     return this.mbClient.readHoldingRegisters(mapItem.start, mapItem.end + 1 - mapItem.start).then(function(newData){
