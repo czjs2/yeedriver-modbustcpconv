@@ -84,7 +84,7 @@ Modbus.prototype.initDriver = function (options) {
 };
 
 Modbus.prototype.initDeviceId = function (devId) {
-
+    this.mbClient.setID(parseInt(devId.replace(/id/i,'')));
 }
 
 Modbus.prototype.ReadBI = function (bi_mapItem, devId) {
