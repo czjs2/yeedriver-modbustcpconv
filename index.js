@@ -9,11 +9,11 @@ const util = require('util');
 const _ = require('lodash')
 const vm = require('vm')
 const MAX_WRITE_CNT = 50;
-function Modbus(maxSegLength, minGapLength) {
-    WorkerBase.call(this, maxSegLength, minGapLength);
+class Modbus  extends  WorkerBase{
+    super(maxSegLength, minGapLength);
 
 }
-util.inherits(Modbus, WorkerBase);
+
 
 /**
  *
@@ -75,17 +75,13 @@ Modbus.prototype.initDriver = function (options) {
         }.bind(this));
 
         this.setupAutoPoll();
-
     }
-
-
-
 
 };
 
 Modbus.prototype.initDeviceId = function (devId) {
     this.mbClient.setID(parseInt(devId.replace(/id/i,'')));
-}
+};
 
 Modbus.prototype.ReadBI = function (bi_mapItem, devId) {
     if (this.devices[devId] && _.isFunction(this.devices[devId].ReadBI)) {
@@ -123,5 +119,5 @@ Modbus.prototype.WriteWQ = function (mapItem, value, devId) {
 
 
 module.exports = Modbus;
-module.exports.ModbusBase = require('./ModbusBase');
+
 
