@@ -10,7 +10,10 @@ const _ = require('lodash')
 const vm = require('vm')
 const MAX_WRITE_CNT = 50;
 class Modbus  extends  WorkerBase{
-    super(maxSegLength, minGapLength);
+    constructor(maxSegLength, minGapLength){
+        super(maxSegLength, minGapLength);
+    }
+
 
 }
 
@@ -62,8 +65,8 @@ Modbus.prototype.initDriver = function (options) {
             }else  if( this.options.protocol === 'TCP'){
                 Connector.param1 = options.ip;
             }
-
         }
+
         Connector.func(Connector.param1, Connector.param2, function (error) {
             if (!error) {
                 this.mbClient.setTimeout(this.options.timeout || 500);
