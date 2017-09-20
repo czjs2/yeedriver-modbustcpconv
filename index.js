@@ -48,7 +48,12 @@ Modbus.prototype.initDriver = function (options) {
         let Connector = {};
         if(this.options.protocol === 'RTU' || !this.options.protocol ){
             //启动ModbusRTU
-            Connector.func= this.mbClient.connectRTU;
+            if(this.options.devName){
+                Connector.func= this.mbClient.connectRTU;
+            }else{
+                Connector.func= this.mbClient.connectComOverTCP;
+            }
+
         }else if(this.options.prtotocol === 'TCP'){
             Connector.func= this.mbClient.connectTCP;
         }else if(this.options.protocol === 'ASCII'){
