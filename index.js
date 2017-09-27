@@ -10,7 +10,10 @@ const _ = require('lodash')
 const vm = require('vm')
 const MAX_WRITE_CNT = 50;
 class Modbus  extends  WorkerBase{
-    super(maxSegLength, minGapLength);
+    constructor(maxSegLength, minGapLength){
+        super(maxSegLength, minGapLength);
+    }
+
 
 }
 
