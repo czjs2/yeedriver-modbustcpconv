@@ -10,7 +10,9 @@ const _ = require('lodash')
 const vm = require('vm')
 const MAX_WRITE_CNT = 50;
 class Modbus  extends  WorkerBase{
-    super(maxSegLength, minGapLength);
+    constructor(maxSegLength, minGapLength){
+        super(maxSegLength, minGapLength);
+    }
 
 }
 
@@ -45,7 +47,11 @@ Modbus.prototype.initDriver = function (options) {
         let Connector = {};
         if(this.options.protocol === 'RTU' || !this.options.protocol ){
             //启动ModbusRTU
-            Connector.func= this.mbClient.connectRTU;
+            if(options && options.devName){
+                Connector.func= this.mbClient.connectRTU;
+            }else{
+                Connector.func= this.mbClient.connectComOverTCP;
+            }
         }else if(this.options.prtotocol === 'TCP'){
             Connector.func= this.mbClient.connectTCP;
         }else if(this.options.protocol === 'ASCII'){
@@ -57,14 +63,14 @@ Modbus.prototype.initDriver = function (options) {
             Connector.param1 =options.devName;
             Connector.param2={baudrate:options.baudrate||9600,parity:options.parity,stopbit:options.stopbit}
         } else {
-            if(!this.options || this.options.protocol === 'RTU'){
+            if(!this.options.protocol || this.options.protocol === 'RTU'){
                 Connector.param1 = options.ip + ":" + options.port
             }else  if( this.options.protocol === 'TCP'){
                 Connector.param1 = options.ip;
             }
 
         }
-        Connector.func(Connector.param1, Connector.param2, function (error) {
+        Connector.func.call(this.mbClient,Connector.param1, Connector.param2, function (error) {
             if (!error) {
                 this.mbClient.setTimeout(this.options.timeout || 500);
                 this.connected = true;
@@ -119,5 +125,6 @@ Modbus.prototype.WriteWQ = function (mapItem, value, devId) {
 
 
 module.exports = Modbus;
+
 
 
