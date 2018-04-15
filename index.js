@@ -68,7 +68,7 @@ Modbus.prototype.initDriver = function (options) {
                 Connector.param1 = options.ip + ":" + options.port
             }else  if( this.options.protocol === 'TCP'){
                 Connector.param1 = options.ip;
-                Connector.param1 = options.port;
+                Connector.param2 = options.port;
             }
 
         }
