@@ -53,7 +53,7 @@ Modbus.prototype.initDriver = function (options) {
             }else{
                 Connector.func= this.mbClient.connectComOverTCP;
             }
-        }else if(this.options.protocol === 'TCP'){
+        }else if(this.options.protocol   === 'TCP'){
             Connector.func= this.mbClient.connectTCP;
         }else if(this.options.protocol === 'ASCII'){
             Connector.func= this.mbClient.connectAsciiSerial;
@@ -68,7 +68,7 @@ Modbus.prototype.initDriver = function (options) {
                 Connector.param1 = options.ip + ":" + options.port
             }else  if( this.options.protocol === 'TCP'){
                 Connector.param1 = options.ip;
-                Connector.param2 = options.port;
+                Connector.param2 = {port: options.port}
             }
 
         }
@@ -127,6 +127,7 @@ Modbus.prototype.WriteWQ = function (mapItem, value, devId) {
 
 
 module.exports = Modbus;
+
 
 
 

@@ -1,6 +1,6 @@
 {
   "name": "yeedriver-modbustcpconv",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "yeedriver-modbustcpconv",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,6 @@
     "lodash": "^4.17.4",
     "qz-modbus-serial": "^4.5.6",
     "modbus-serial":"^5.3.2",
-    "yeedriver-base": "^1.0.0"
+    "yeedriver-base": "^1.0.10"
   }
 }
